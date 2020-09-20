@@ -34,6 +34,7 @@ import android.util.Size;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -407,6 +408,17 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         imageview1.setVisibility(View.INVISIBLE);
         ImageView imageview2 =(ImageView) findViewById(R.id.without_mask);
         imageview2.setVisibility(View.INVISIBLE);
+        TextView textView = (TextView) findViewById(R.id.detect_label);
+        textView.setText("");
+      }
+    });
+  }
+  private void setDetect_Label(String text){
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        TextView textview = (TextView) findViewById(R.id.detect_label);
+        textview.setText(text);
       }
     });
   }
@@ -509,10 +521,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             if (result.getId().equals("0")) {
               color = Color.GREEN;
               setWith_mask();// make Mask UI visible
+              setDetect_Label(label);
             }
             else if (result.getId().equals("1")) {
               color = Color.RED;
               setWithout_mask();//make no Maks UI visible
+              setDetect_Label(label);
             }
 
             //System.out.println(result.getId());
@@ -539,9 +553,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         final Classifier.Recognition result = new Classifier.Recognition(
                 "0", label, confidence, boundingBox);
 
-        result.setColor(color);
-        result.setLocation(boundingBox);
-        mappedRecognitions.add(result);
+        //result.setColor(color);
+        //result.setLocation(boundingBox);
+        //mappedRecognitions.add(result);
       }
 
 

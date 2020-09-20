@@ -37,8 +37,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
 
+
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.view.Menu;
+import android.view.MenuItem;
 import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -49,6 +52,7 @@ import java.nio.ByteBuffer;
 
 import org.tensorflow.lite.examples.detection.env.ImageUtils;
 import org.tensorflow.lite.examples.detection.env.Logger;
+
 
 
 
@@ -79,6 +83,7 @@ public abstract class CameraActivity extends AppCompatActivity
     private Integer useFacing = null;
     private String cameraId = null;
 
+
     protected Integer getCameraFacing() {
         return useFacing;
     }
@@ -96,6 +101,7 @@ public abstract class CameraActivity extends AppCompatActivity
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.tfe_od_activity_camera);
+
 
         if (hasPermission()) {
             setFragment();
