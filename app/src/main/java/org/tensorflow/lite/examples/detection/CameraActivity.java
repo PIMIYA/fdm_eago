@@ -31,6 +31,9 @@ import android.media.Image;
 import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.media.MediaPlayer;
+
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,15 +47,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.util.Size;
 import android.view.Surface;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.MediaController;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 
 import java.nio.ByteBuffer;
 
 import org.tensorflow.lite.examples.detection.env.ImageUtils;
 import org.tensorflow.lite.examples.detection.env.Logger;
-
 
 
 
@@ -88,6 +93,7 @@ public abstract class CameraActivity extends AppCompatActivity
         return useFacing;
     }
 
+    VideoView vv;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -251,6 +257,23 @@ public abstract class CameraActivity extends AppCompatActivity
         super.onStart();
         setNumThreads(2);
         setUseNNAPI(true);
+
+        //video
+        vv = (VideoView)findViewById(R.id.videoView);
+
+        //Video Loop
+        vv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            public void onCompletion(MediaPlayer mp) {
+                vv.start(); //need to make transition seamless.
+            }
+        });
+
+        String UrlPath="android.resource://"+getPackageName()+"/"+R.raw.demo;
+        Uri uri = Uri.parse(UrlPath);
+
+        vv.setVideoURI(uri);
+        vv.requestFocus();
+        vv.setOnPreparedListener(mediaPlayer -> vv.start());
     }
 
     @Override
@@ -296,6 +319,8 @@ public abstract class CameraActivity extends AppCompatActivity
             handler.post(r);
         }
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(

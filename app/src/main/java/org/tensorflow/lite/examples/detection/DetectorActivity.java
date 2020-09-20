@@ -36,6 +36,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.mlkit.vision.common.InputImage;
@@ -276,6 +277,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 if (faces.size() == 0) {
                   updateResults(currTimestamp, new LinkedList<>());
                   setClean_mask();// clear indicatorUI element
+                  setVideo_TRUE();
                   return;
                 }
                 runInBackground(
@@ -423,6 +425,28 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     });
   }
 
+  private void setVideo_TRUE(){
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        VideoView vv = (VideoView) findViewById(R.id.videoView);
+        vv.setVisibility(View.VISIBLE);
+        vv.bringToFront();
+      }
+    });
+  }
+
+  private void setVideo_FALSE(){
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        VideoView vv = (VideoView) findViewById(R.id.videoView);
+        vv.setVisibility(View.INVISIBLE);
+      }
+    });
+  }
+
+
   private void onFacesDetected(long currTimestamp, List<Face> faces) {
 
     cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
@@ -473,6 +497,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
       LOGGER.i("Running detection on face " + currTimestamp);
 
+      setVideo_FALSE();
       //results = detector.recognizeImage(croppedBitmap);
 
 
