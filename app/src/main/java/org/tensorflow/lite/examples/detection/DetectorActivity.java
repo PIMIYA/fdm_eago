@@ -29,6 +29,7 @@ import android.graphics.Typeface;
 import android.hardware.camera2.CameraCharacteristics;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Size;
 import android.util.TypedValue;
@@ -45,6 +46,7 @@ import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -58,6 +60,8 @@ import org.tensorflow.lite.examples.detection.tflite.Classifier;
 import org.tensorflow.lite.examples.detection.tflite.TFLiteObjectDetectionAPIModel;
 import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
 
+import android.media.MediaPlayer;
+import android.net.Uri;
 
 /**
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
@@ -79,7 +83,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final boolean TF_OD_API_IS_QUANTIZED = false;
   private static final String TF_OD_API_MODEL_FILE = "mask_detector.tflite";
   private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/mask_labelmap.txt";
-
+  //private static final String TF_OD_API_LABELS_FILE = Environment.getExternalStorageDirectory()+ "/"+"/FDM/mask_labelmap.txt";
   private static final DetectorMode MODE = DetectorMode.TF_OD_API;
   // Minimum detection confidence to track a detection.
   private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
@@ -125,6 +129,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   private Bitmap with_mask = null;
   private Bitmap without_mask = null;
+  private MediaPlayer mpintro;
 
 
   @Override
@@ -319,6 +324,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   protected void setNumThreads(final int numThreads) {
     runInBackground(() -> detector.setNumThreads(numThreads));
   }
+
+
 
 
   // Face Mask Processing
@@ -547,11 +554,18 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               color = Color.GREEN;
               setWith_mask();// make Mask UI visible
               setDetect_Label(label);
+              mpintro = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/FDM/Alert/pass.mp3"));
+              mpintro.setLooping(false);
+              mpintro.start();
+
             }
             else if (result.getId().equals("1")) {
               color = Color.RED;
               setWithout_mask();//make no Maks UI visible
               setDetect_Label(label);
+              mpintro = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/FDM/Alert/fail.mp3"));
+              mpintro.setLooping(false);
+              mpintro.start();
             }
 
             //System.out.println(result.getId());

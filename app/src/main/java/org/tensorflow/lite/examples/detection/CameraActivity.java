@@ -17,7 +17,10 @@
 package org.tensorflow.lite.examples.detection;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -33,9 +36,11 @@ import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.media.MediaPlayer;
 
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
@@ -43,10 +48,17 @@ import android.os.Trace;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.database.Cursor;
+import android.provider.BaseColumns;
+import android.provider.MediaStore;
+import android.provider.MediaStore.MediaColumns;
+
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.util.Size;
 import android.view.Surface;
+import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.MediaController;
@@ -54,6 +66,12 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.tensorflow.lite.examples.detection.env.ImageUtils;
@@ -100,6 +118,8 @@ public abstract class CameraActivity extends AppCompatActivity
         LOGGER.d("onCreate " + this);
         super.onCreate(null);
 
+        hideSystemUI();
+
         Intent intent = getIntent();
         //useFacing = intent.getIntExtra(KEY_USE_FACING, CameraCharacteristics.LENS_FACING_FRONT);
         useFacing = intent.getIntExtra(KEY_USE_FACING, CameraCharacteristics.LENS_FACING_BACK);//LENS_FACING_BACK
@@ -125,6 +145,22 @@ public abstract class CameraActivity extends AppCompatActivity
 
     }
 
+    private void hideSystemUI() {
+        // Enables regular immersive mode.
+        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
 
 
     protected int[] getRgbBytes() {
@@ -255,12 +291,44 @@ public abstract class CameraActivity extends AppCompatActivity
     public synchronized void onStart() {
         LOGGER.d("onStart " + this);
         super.onStart();
-        setNumThreads(2);
-        setUseNNAPI(true);
+        //set scale of texture view
+        int r = getScreenOrientation();
+        if(r==90 || r==270){
+            TextureView tex = (TextureView) findViewById(R.id.texture);
+            float scalingFactor = 3.5f;
+            tex.setScaleX(scalingFactor);
+        }
+
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+
+        //create directory
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "FDM");
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d("App", "failed to create directory");
+            }
+        }
+
+        File mediaStorageDir_alert = new File(Environment.getExternalStorageDirectory()+"/FDM", "Alert");
+        if (!mediaStorageDir_alert.exists()) {
+            if (!mediaStorageDir_alert.mkdirs()) {
+                Log.d("App", "failed to create directory");
+            }
+        }
+
+        File mediaStorageDir_videos = new File(Environment.getExternalStorageDirectory()+"/FDM", "Videos");
+        if (!mediaStorageDir_videos.exists()) {
+            if (!mediaStorageDir_videos.mkdirs()) {
+                Log.d("App", "failed to create directory");
+            }
+        }
+
 
         //video
         vv = (VideoView)findViewById(R.id.videoView);
-
         //Video Loop
         vv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             public void onCompletion(MediaPlayer mp) {
@@ -269,11 +337,17 @@ public abstract class CameraActivity extends AppCompatActivity
         });
 
         String UrlPath="android.resource://"+getPackageName()+"/"+R.raw.demo;
-        Uri uri = Uri.parse(UrlPath);
+
+        String path = Environment.getExternalStorageDirectory() + "/"+ "/FDM/video.mp4";
+        Uri uri = Uri.parse(path);
+
 
         vv.setVideoURI(uri);
         vv.requestFocus();
         vv.setOnPreparedListener(mediaPlayer -> vv.start());
+
+        setNumThreads(2);
+        //setUseNNAPI(true);
     }
 
     @Override
