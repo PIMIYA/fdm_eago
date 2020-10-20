@@ -39,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
@@ -93,8 +94,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   //private static final int CROP_SIZE = 320;
   //private static final Size CROP_SIZE = new Size(320, 320);
 
-
-
   private static final boolean SAVE_PREVIEW_BITMAP = false;
   private static final float TEXT_SIZE_DIP = 10;
   OverlayView trackingOverlay;
@@ -130,6 +129,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private Bitmap with_mask = null;
   private Bitmap without_mask = null;
   private MediaPlayer mpintro;
+
+  private int alter_flag = 0;
 
 
   @Override
@@ -283,6 +284,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                   updateResults(currTimestamp, new LinkedList<>());
                   setClean_mask();// clear indicatorUI element
                   setVideo_TRUE();
+                  alter_flag = 0;
                   return;
                 }
                 runInBackground(
@@ -388,10 +390,15 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        ImageView imageview1 =(ImageView) findViewById(R.id.with_mask);
-        imageview1.setVisibility(View.VISIBLE);
-        ImageView imageview2 =(ImageView) findViewById(R.id.without_mask);
-        imageview2.setVisibility(View.INVISIBLE);
+//        ImageView imageview1 =(ImageView) findViewById(R.id.with_mask);
+//        imageview1.setVisibility(View.VISIBLE);
+//        ImageView imageview2 =(ImageView) findViewById(R.id.without_mask);
+//        imageview2.setVisibility(View.INVISIBLE);
+        LottieAnimationView aniView1 =(LottieAnimationView) findViewById(R.id.with_mask);
+        aniView1.setVisibility(View.VISIBLE);
+        aniView1.playAnimation();
+        LottieAnimationView aniView2 =(LottieAnimationView) findViewById(R.id.without_mask);
+        aniView2.setVisibility(View.INVISIBLE);
       }
     });
   }
@@ -401,10 +408,16 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        ImageView imageview1 =(ImageView) findViewById(R.id.with_mask);
-        imageview1.setVisibility(View.INVISIBLE);
-        ImageView imageview2 =(ImageView) findViewById(R.id.without_mask);
-        imageview2.setVisibility(View.VISIBLE);
+//        ImageView imageview1 =(ImageView) findViewById(R.id.with_mask);
+//        imageview1.setVisibility(View.INVISIBLE);
+//        ImageView imageview2 =(ImageView) findViewById(R.id.without_mask);
+//        imageview2.setVisibility(View.VISIBLE);
+
+        LottieAnimationView aniView1 =(LottieAnimationView) findViewById(R.id.with_mask);
+        aniView1.setVisibility(View.INVISIBLE);
+        LottieAnimationView aniView2 =(LottieAnimationView) findViewById(R.id.without_mask);
+        aniView2.setVisibility(View.VISIBLE);
+        aniView2.playAnimation();
       }
     });
   }
@@ -550,22 +563,41 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             confidence = conf;
             label = result.getTitle();
 
-            if (result.getId().equals("0")) {
-              color = Color.GREEN;
-              setWith_mask();// make Mask UI visible
-              setDetect_Label(label);
-              mpintro = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/FDM/Alert/pass.mp3"));
-              mpintro.setLooping(false);
-              mpintro.start();
+            if(alter_flag ==0){
+              if (result.getId().equals("0")) {
+                alter_flag = 1;
+                //color = Color.GREEN;
+                setDetect_Label(label);
+                mpintro = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/FDM/Alert/pass.mp3"));
+                runOnUiThread(
+                        new Runnable() {
+                          @Override
+                          public void run() {
+                            //do something here
+                            setWith_mask();// make Mask UI visible
 
-            }
-            else if (result.getId().equals("1")) {
-              color = Color.RED;
-              setWithout_mask();//make no Maks UI visible
-              setDetect_Label(label);
-              mpintro = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/FDM/Alert/fail.mp3"));
-              mpintro.setLooping(false);
-              mpintro.start();
+                            mpintro.setLooping(false);
+                            mpintro.start();
+                          }
+                        });
+              }
+              else if (result.getId().equals("1")) {
+                alter_flag =1;
+                //color = Color.RED;
+                setDetect_Label(label);
+                mpintro = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/FDM/Alert/fail.mp3"));
+                runOnUiThread(
+                        new Runnable() {
+                          @Override
+                          public void run() {
+                            //do something here
+                            setWithout_mask();//make no Maks UI visible
+
+                            mpintro.setLooping(false);
+                            mpintro.start();
+                          }
+                        });
+              }
             }
 
             //System.out.println(result.getId());

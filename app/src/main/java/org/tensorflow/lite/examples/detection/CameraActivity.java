@@ -73,6 +73,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.tensorflow.lite.examples.detection.env.ImageUtils;
 import org.tensorflow.lite.examples.detection.env.Logger;
@@ -111,7 +113,12 @@ public abstract class CameraActivity extends AppCompatActivity
         return useFacing;
     }
 
-    VideoView vv;
+    private VideoView vv;
+
+    private Uri videoUri;
+    private int VideoI;
+
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -326,25 +333,69 @@ public abstract class CameraActivity extends AppCompatActivity
             }
         }
 
+        String path = Environment.getExternalStorageDirectory() + "/"+ "/FDM/Videos";
+        Log.d("Files", "Path: " + path);
+        File directory = new File(path);
+        File[] files = directory.listFiles();
+        Log.d("Files", "Size: "+ files.length);
 
-        //video
+        final List<String> videoNames = new ArrayList<String>() ;
+
+        for (int i = 0; i < files.length; i++)
+        {
+            Log.d("Files", "FileName:" + files[i].getName());
+            videoNames.add(files[i].getName());
+        }
+
+        videoUri = Uri.parse(Environment.getExternalStorageDirectory() + "/"+ "/FDM/Videos/"+videoNames.get(0));
         vv = (VideoView)findViewById(R.id.videoView);
-        //Video Loop
+        vv.setVideoURI(videoUri);
+        vv.start();
         vv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+            @Override
             public void onCompletion(MediaPlayer mp) {
-                vv.start(); //need to make transition seamless.
+
+
+                videoUri = Uri.parse(Environment.getExternalStorageDirectory() + "/FDM/"+ "Videos/"
+                        + videoNames.get(VideoI));
+                vv.setVideoURI(videoUri);
+
+                vv.start();
+
+                if(VideoI==videoNames.size()-1)
+                {
+                    VideoI=0;
+                }
+                else{
+                    VideoI++;
+                }
             }
         });
 
-        String UrlPath="android.resource://"+getPackageName()+"/"+R.raw.demo;
-
-        String path = Environment.getExternalStorageDirectory() + "/"+ "/FDM/video.mp4";
-        Uri uri = Uri.parse(path);
-
-
-        vv.setVideoURI(uri);
         vv.requestFocus();
-        vv.setOnPreparedListener(mediaPlayer -> vv.start());
+        vv.setOnPreparedListener(MediaPlayer -> vv.start());
+
+
+//        //video
+//        vv = (VideoView)findViewById(R.id.videoView);
+//        //Video Loop
+//        vv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//            public void onCompletion(MediaPlayer mp) {
+//                vv.start(); //need to make transition seamless.
+//            }
+//        });
+//
+//        //String UrlPath="android.resource://"+getPackageName()+"/"+R.raw.demo;
+//
+//        String path = Environment.getExternalStorageDirectory() + "/"+ "/FDM/video.mp4";
+//
+//        Uri uri = Uri.parse(path);
+//
+//
+//        vv.setVideoURI(uri);
+//        vv.requestFocus();
+//        vv.setOnPreparedListener(MediaPlayer -> vv.start());
 
         setNumThreads(2);
         //setUseNNAPI(true);

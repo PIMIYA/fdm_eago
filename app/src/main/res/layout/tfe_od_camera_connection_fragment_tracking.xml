@@ -29,19 +29,41 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ImageView
+    <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/with_mask"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        app:srcCompat="@drawable/with_mask" />
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:lottie_autoPlay="false"
+        app:lottie_loop="false"
+        app:lottie_rawRes="@raw/correct"
+        app:lottie_scale="5.0" />
 
-    <ImageView
+    <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/without_mask"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        app:srcCompat="@drawable/without_mask" />
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:lottie_autoPlay="false"
+        app:lottie_loop="false"
+        app:lottie_rawRes="@raw/incorrect"
+        app:lottie_scale="5.0" />
+
+<!--    <ImageView-->
+<!--        android:id="@+id/with_mask"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:visibility="gone"-->
+<!--        app:srcCompat="@drawable/with_mask" />-->
+
+<!--    <ImageView-->
+<!--        android:id="@+id/without_mask"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:visibility="gone"-->
+<!--        app:srcCompat="@drawable/without_mask" />-->
     <TextView
         android:id="@+id/detect_label"
         android:layout_width="match_parent"
