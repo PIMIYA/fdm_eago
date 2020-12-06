@@ -398,7 +398,7 @@ public abstract class CameraActivity extends AppCompatActivity
 //        vv.setOnPreparedListener(MediaPlayer -> vv.start());
 
         setNumThreads(2);
-        //setUseNNAPI(true);
+        setUseNNAPI(true);
     }
 
     @Override
