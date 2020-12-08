@@ -351,30 +351,61 @@ public abstract class CameraActivity extends AppCompatActivity
         vv = (VideoView)findViewById(R.id.videoView);
         vv.setVideoURI(videoUri);
         vv.start();
-        vv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        //do something here
+                        vv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
-            @Override
-            public void onCompletion(MediaPlayer mp) {
+                            @Override
+                            public void onCompletion(MediaPlayer mp) {
 
 
-                videoUri = Uri.parse(Environment.getExternalStorageDirectory() + "/FDM/"+ "Videos/"
-                        + videoNames.get(VideoI));
-                vv.setVideoURI(videoUri);
+                                videoUri = Uri.parse(Environment.getExternalStorageDirectory() + "/FDM/"+ "Videos/"
+                                        + videoNames.get(VideoI));
+                                vv.setVideoURI(videoUri);
 
-                vv.start();
+                                vv.start();
 
-                if(VideoI==videoNames.size()-1)
-                {
-                    VideoI=0;
-                }
-                else{
-                    VideoI++;
-                }
-            }
-        });
+                                if(VideoI==videoNames.size()-1)
+                                {
+                                    VideoI=0;
+                                }
+                                else{
+                                    VideoI++;
+                                }
+                            }
+                        });
 
-        vv.requestFocus();
-        vv.setOnPreparedListener(MediaPlayer -> vv.start());
+                        vv.requestFocus();
+                        vv.setOnPreparedListener(MediaPlayer -> vv.start());
+                    }
+                });
+//        vv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//
+//            @Override
+//            public void onCompletion(MediaPlayer mp) {
+//
+//
+//                videoUri = Uri.parse(Environment.getExternalStorageDirectory() + "/FDM/"+ "Videos/"
+//                        + videoNames.get(VideoI));
+//                vv.setVideoURI(videoUri);
+//
+//                vv.start();
+//
+//                if(VideoI==videoNames.size()-1)
+//                {
+//                    VideoI=0;
+//                }
+//                else{
+//                    VideoI++;
+//                }
+//            }
+//        });
+//
+//        vv.requestFocus();
+//        vv.setOnPreparedListener(MediaPlayer -> vv.start());
 
 
 //        //video
