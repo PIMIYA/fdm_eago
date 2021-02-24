@@ -3,7 +3,7 @@ apply plugin: 'de.undercouch.download'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.3'
     defaultConfig {
         applicationId "org.tensorflow.lite.examples.facemask"
         minSdkVersion 21
@@ -41,17 +41,17 @@ project.ext.TMP_DIR   = project.buildDir.toString() + '/downloads'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.0.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
+    implementation 'com.google.android.material:material:1.2.1'
     implementation('org.tensorflow:tensorflow-lite:0.0.0-nightly') { changing = true }
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
     androidTestImplementation 'com.google.truth:truth:1.0.1'
 
     // added MLKit dependencies for face detector
-    implementation 'com.google.mlkit:face-detection:16.0.0'
-    def lottieVersion = "3.4.0"
+    implementation 'com.google.mlkit:face-detection:16.0.3'
+    def lottieVersion = "3.5.0"
     implementation "com.airbnb.android:lottie:$lottieVersion"
 
 

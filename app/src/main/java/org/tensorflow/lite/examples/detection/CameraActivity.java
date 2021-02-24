@@ -116,7 +116,7 @@ public abstract class CameraActivity extends AppCompatActivity
     private VideoView vv;
 
     private Uri videoUri;
-    private int VideoI;
+    private int VideoId;
 
 
 
@@ -358,17 +358,17 @@ public abstract class CameraActivity extends AppCompatActivity
 
 
                 videoUri = Uri.parse(Environment.getExternalStorageDirectory() + "/FDM/"+ "Videos/"
-                        + videoNames.get(VideoI));
+                        + videoNames.get(VideoId));
                 vv.setVideoURI(videoUri);
 
                 vv.start();
 
-                if(VideoI==videoNames.size()-1)
+                if(VideoId==videoNames.size()-1)
                 {
-                    VideoI=0;
+                    VideoId=0;
                 }
                 else{
-                    VideoI++;
+                    VideoId++;
                 }
             }
         });
@@ -376,34 +376,14 @@ public abstract class CameraActivity extends AppCompatActivity
         vv.requestFocus();
         vv.setOnPreparedListener(MediaPlayer -> vv.start());
 
-
-//        //video
-//        vv = (VideoView)findViewById(R.id.videoView);
-//        //Video Loop
-//        vv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//            public void onCompletion(MediaPlayer mp) {
-//                vv.start(); //need to make transition seamless.
-//            }
-//        });
-//
-//        //String UrlPath="android.resource://"+getPackageName()+"/"+R.raw.demo;
-//
-//        String path = Environment.getExternalStorageDirectory() + "/"+ "/FDM/video.mp4";
-//
-//        Uri uri = Uri.parse(path);
-//
-//
-//        vv.setVideoURI(uri);
-//        vv.requestFocus();
-//        vv.setOnPreparedListener(MediaPlayer -> vv.start());
-
-        setNumThreads(2);
-        //setUseNNAPI(true);
+        setNumThreads(6);
+        setUseNNAPI(true);
     }
 
     @Override
     public synchronized void onResume() {
         LOGGER.d("onResume " + this);
+        vv.start();
         super.onResume();
 
         handlerThread = new HandlerThread("inference");
@@ -414,7 +394,7 @@ public abstract class CameraActivity extends AppCompatActivity
     @Override
     public synchronized void onPause() {
         LOGGER.d("onPause " + this);
-
+        vv.stopPlayback();
         handlerThread.quitSafely();
         try {
             handlerThread.join();

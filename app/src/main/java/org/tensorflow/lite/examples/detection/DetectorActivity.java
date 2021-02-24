@@ -128,8 +128,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   private Bitmap with_mask = null;
   private Bitmap without_mask = null;
-  private MediaPlayer mpintro;
-
+  private MediaPlayer alert_mask;
+  private MediaPlayer alert_without_mask;
   private int alter_flag = 0;
 
 
@@ -150,6 +150,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     faceDetector = detector;
 
+    alert_mask = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/FDM/Alert/pass.mp3"));
+    alert_without_mask = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/FDM/Alert/fail.mp3"));
 
     //checkWritePermission();
 
@@ -282,7 +284,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               public void onSuccess(List<Face> faces) {
                 if (faces.size() == 0) {
                   updateResults(currTimestamp, new LinkedList<>());
-                  setClean_mask();// clear indicatorUI element
+                  //setClean_mask();// clear indicatorUI element
                   setVideo_TRUE();
                   alter_flag = 0;
                   return;
@@ -390,15 +392,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-//        ImageView imageview1 =(ImageView) findViewById(R.id.with_mask);
-//        imageview1.setVisibility(View.VISIBLE);
-//        ImageView imageview2 =(ImageView) findViewById(R.id.without_mask);
-//        imageview2.setVisibility(View.INVISIBLE);
+        alert_mask.setLooping(false);
+        alert_mask.start();
         LottieAnimationView aniView1 =(LottieAnimationView) findViewById(R.id.with_mask);
         aniView1.setVisibility(View.VISIBLE);
         aniView1.playAnimation();
         LottieAnimationView aniView2 =(LottieAnimationView) findViewById(R.id.without_mask);
         aniView2.setVisibility(View.INVISIBLE);
+        aniView2.removeAllAnimatorListeners();
       }
     });
   }
@@ -408,13 +409,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-//        ImageView imageview1 =(ImageView) findViewById(R.id.with_mask);
-//        imageview1.setVisibility(View.INVISIBLE);
-//        ImageView imageview2 =(ImageView) findViewById(R.id.without_mask);
-//        imageview2.setVisibility(View.VISIBLE);
-
+        alert_without_mask.setLooping(false);
+        alert_without_mask.start();
         LottieAnimationView aniView1 =(LottieAnimationView) findViewById(R.id.with_mask);
         aniView1.setVisibility(View.INVISIBLE);
+        aniView1.removeAllAnimatorListeners();
         LottieAnimationView aniView2 =(LottieAnimationView) findViewById(R.id.without_mask);
         aniView2.setVisibility(View.VISIBLE);
         aniView2.playAnimation();
@@ -451,6 +450,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       public void run() {
         VideoView vv = (VideoView) findViewById(R.id.videoView);
         vv.setVisibility(View.VISIBLE);
+        vv.start();
         vv.bringToFront();
       }
     });
@@ -462,6 +462,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       public void run() {
         VideoView vv = (VideoView) findViewById(R.id.videoView);
         vv.setVisibility(View.INVISIBLE);
+        vv.stopPlayback();
       }
     });
   }
@@ -553,7 +554,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         final List<Classifier.Recognition> resultsAux = detector.recognizeImage(faceBmp);
         lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
+
         if (resultsAux.size() > 0) {
+
 
           Classifier.Recognition result = resultsAux.get(0);
 
@@ -568,35 +571,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 alter_flag = 1;
                 //color = Color.GREEN;
                 setDetect_Label(label);
-                mpintro = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/FDM/Alert/pass.mp3"));
-                runOnUiThread(
-                        new Runnable() {
-                          @Override
-                          public void run() {
-                            //do something here
-                            setWith_mask();// make Mask UI visible
-
-                            mpintro.setLooping(false);
-                            mpintro.start();
-                          }
-                        });
+                setWith_mask();// make Mask UI visible
               }
               else if (result.getId().equals("1")) {
                 alter_flag =1;
                 //color = Color.RED;
                 setDetect_Label(label);
-                mpintro = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/FDM/Alert/fail.mp3"));
-                runOnUiThread(
-                        new Runnable() {
-                          @Override
-                          public void run() {
-                            //do something here
-                            setWithout_mask();//make no Maks UI visible
-
-                            mpintro.setLooping(false);
-                            mpintro.start();
-                          }
-                        });
+                setWithout_mask();//make no Maks UI visible
               }
             }
 
